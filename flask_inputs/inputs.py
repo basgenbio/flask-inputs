@@ -1,5 +1,4 @@
-
-import collections
+from collections.abc import Iterable
 from itertools import chain
 from future.utils import iteritems
 
@@ -11,8 +10,7 @@ from wtforms.fields import Field
 
 class Inputs(object):
     #: flask.Request attributes available for validation
-    valid_attrs = ['args', 'form', 'values', 'cookies',
-                   'headers', 'json', 'rule']
+    valid_attrs = ["args", "form", "values", "cookies", "headers", "json", "rule"]
 
     def __init__(self, request):
         """Base class for input validation. Subclass to add validators.
@@ -27,15 +25,19 @@ class Inputs(object):
         self._forms = dict()
 
         for name in dir(self):
-            if not name.startswith('_') and name not in ['errors', 'validate', 'valid_attrs']:
+            if not name.startswith("_") and name not in [
+                "errors",
+                "validate",
+                "valid_attrs",
+            ]:
                 input = getattr(self, name)
                 fields = dict()
 
                 if isinstance(input, dict):
                     for field, validators in iteritems(input):
                         fields[field] = Field(validators=validators)
-                elif isinstance(input, collections.Iterable):
-                    fields['_input'] = Field(validators=input)
+                elif isinstance(input, Iterable):
+                    fields["_input"] = Field(validators=input)
 
                 self._forms[name] = BaseForm(fields)
 
@@ -49,7 +51,7 @@ class Inputs(object):
         :returns: werkzeug.datastructures.MultiDict
         """
         if attribute in self.valid_attrs:
-            if attribute == 'rule':
+            if attribute == "rule":
                 ret = self._request.view_args
             else:
                 ret = getattr(self._request, attribute)
@@ -68,7 +70,7 @@ class Inputs(object):
         success = True
 
         for attribute, form in iteritems(self._forms):
-            if '_input' in form._fields:
+            if "_input" in form._fields:
                 form.process(self._get_values(attribute, coerse=False))
             else:
                 form.process(self._get_values(attribute))
